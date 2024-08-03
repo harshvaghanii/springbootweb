@@ -20,17 +20,17 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public List<EmployeeEntity> getAllEmployees(@RequestParam(required = false) Integer age, @RequestParam(required = false) String sortBy) {
+    public List<EmployeeDTO> getAllEmployees(@RequestParam(required = false) Integer age, @RequestParam(required = false) String sortBy) {
         return empService.getAllEmployees();
     }
 
     @GetMapping("/{employeeID}")
-    public EmployeeEntity getEmployeeByID(@PathVariable String employeeID) {
+    public EmployeeDTO getEmployeeByID(@PathVariable String employeeID) {
         return empService.getEmployeeById(employeeID);
     }
 
     @PostMapping
-    public EmployeeEntity addEmployee(@RequestBody EmployeeEntity employee) {
+    public EmployeeDTO addEmployee(@RequestBody EmployeeDTO employee) {
         return empService.addEmployee(employee);
     }
 
