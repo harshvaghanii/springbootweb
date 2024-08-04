@@ -4,10 +4,13 @@ import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.dto.Employe
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.entities.EmployeeEntity;
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.repositories.EmployeeRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,11 +44,36 @@ public class EmployeeService {
         return mapper.map(savedEntity, EmployeeDTO.class);
     }
 
-    public void deleteEmployee(String id) {
-        repository.deleteById(Long.parseLong(id));
+    public boolean deleteEmployee(String id) {
+        Long empID = Long.parseLong(id);
+        boolean exists = employeeExistsByID(empID);
+        if(!exists) return false;
+        repository.deleteById(empID);
+        return true;
     }
 
+    public EmployeeDTO updateEmployeeById(EmployeeDTO employee, Long id) {
+        EmployeeEntity entity = mapper.map(employee, EmployeeEntity.class);
+        entity.setId(id);
+        EmployeeEntity savedEntity = repository.save(entity);
+        return mapper.map(savedEntity, EmployeeDTO.class);
+    }
 
+    public boolean employeeExistsByID(Long id) {
+        return repository.existsById(id);
+    }
+
+    public EmployeeDTO updatePartialEmployeeById(Long employeeID, Map<String, Object> updates) {
+        boolean exists = employeeExistsByID(employeeID);
+        if(!exists) return null;
+        EmployeeEntity entity = repository.findById(employeeID).get();
+        updates.forEach((field, value) -> {
+            Field fieldToBeUpdated = ReflectionUtils.findRequiredField(EmployeeEntity.class, field);
+            fieldToBeUpdated.setAccessible(true);
+            ReflectionUtils.setField(fieldToBeUpdated, entity, value);
+        });
+        return mapper.map(repository.save(entity), EmployeeDTO.class);
+    }
 
 
 }
