@@ -1,6 +1,7 @@
 package com.codingshuttle.springbootwebtutorial.springbootwebtutorial.controllers;
 
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.dto.EmployeeDTO;
+import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.exceptions.ResourceNotFoundException;
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.services.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/employees")
@@ -28,7 +30,7 @@ public class EmployeeController {
     @GetMapping("/{employeeID}")
     public ResponseEntity<EmployeeDTO> getEmployeeByID(@PathVariable String employeeID) {
         EmployeeDTO employee = empService.getEmployeeById(employeeID);
-        if (employee == null) return ResponseEntity.notFound().build();
+        if (employee == null) throw new ResourceNotFoundException("Employee Not Found with ID: " + employeeID);
         return ResponseEntity.ok(employee);
     }
 
@@ -47,7 +49,7 @@ public class EmployeeController {
     @DeleteMapping("/{employeeID}")
     public ResponseEntity<Boolean> deleteEmployee(@PathVariable String employeeID) {
         boolean deleted = empService.deleteEmployee(employeeID);
-        if (!deleted) return ResponseEntity.notFound().build();
+        if (!deleted) throw new ResourceNotFoundException("Invalid employee ID: " + employeeID);
         return ResponseEntity.ok(true);
     }
 

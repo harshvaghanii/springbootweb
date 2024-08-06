@@ -2,6 +2,7 @@ package com.codingshuttle.springbootwebtutorial.springbootwebtutorial.services;
 
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.dto.EmployeeDTO;
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.entities.EmployeeEntity;
+import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.exceptions.ResourceNotFoundException;
 import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.repositories.EmployeeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.util.ReflectionUtils;
@@ -35,6 +36,7 @@ public class EmployeeService {
     public EmployeeDTO getEmployeeById(String id) {
         Long empID = Long.parseLong(id);
         EmployeeEntity obj = repository.findById(empID).orElse(null);
+        if (obj == null) return null;
         return mapper.map(obj, EmployeeDTO.class);
     }
 
@@ -47,12 +49,13 @@ public class EmployeeService {
     public boolean deleteEmployee(String id) {
         Long empID = Long.parseLong(id);
         boolean exists = employeeExistsByID(empID);
-        if(!exists) return false;
+        if (!exists) return false;
         repository.deleteById(empID);
         return true;
     }
 
     public EmployeeDTO updateEmployeeById(EmployeeDTO employee, Long id) {
+        if (!employeeExistsByID(id)) throw new ResourceNotFoundException("Employee Not Found with ID: " + id);
         EmployeeEntity entity = mapper.map(employee, EmployeeEntity.class);
         entity.setId(id);
         EmployeeEntity savedEntity = repository.save(entity);
@@ -65,7 +68,7 @@ public class EmployeeService {
 
     public EmployeeDTO updatePartialEmployeeById(Long employeeID, Map<String, Object> updates) {
         boolean exists = employeeExistsByID(employeeID);
-        if(!exists) return null;
+        if (!exists) return null;
         EmployeeEntity entity = repository.findById(employeeID).get();
         updates.forEach((field, value) -> {
             Field fieldToBeUpdated = ReflectionUtils.findRequiredField(EmployeeEntity.class, field);

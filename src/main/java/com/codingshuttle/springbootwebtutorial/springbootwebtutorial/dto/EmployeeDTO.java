@@ -29,7 +29,6 @@ public class EmployeeDTO {
     @NotNull(message = "Required Field Missing: Age")
     @Min(value = 21, message = "Please enter an age greater than 21")
     @Max(value = 80, message = "Please enter an age less than 80")
-    @PrimeNumberValidation(message = "You should be in your prime age!!")
     private Integer age;
 
     @NotEmpty(message = "Required Field Missing: Role")
